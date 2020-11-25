@@ -7,9 +7,10 @@ import ToyContainer from './components/ToyContainer'
 
 
 class App extends React.Component{
-
+  constuctor
   state = {
-    display: false
+    display: false,
+    toys: []
   }
 
   handleClick = () => {
@@ -19,20 +20,47 @@ class App extends React.Component{
     })
   }
 
+  componentDidMount() {
+    fetch('http://localhost:3000/toys')
+    .then(resp => resp.json())
+    .then(toys => {
+      this.setState({
+        toys: toys
+      })
+    })
+  }
+
+  addToy = (newToy) => {
+   this.setState(prevState => {
+     return {
+       toys: [...prevState.toys, newToy]
+     }
+   })
+  }
+
+  donateToy = (id) => {
+    this.setState(prevState => {
+      return {
+        toys: prevState.toys.filter(t => t.id !== id)
+      }
+    })
+  }
+
   render(){
+    console.log(this.state.toys)
     return (
       <>
         <Header/>
         { this.state.display
             ?
-          <ToyForm/>
+          <ToyForm addToy={this.addToy}/>
             :
           null
         }
         <div className="buttonContainer">
           <button onClick={this.handleClick}> Add a Toy </button>
         </div>
-        <ToyContainer/>
+        <ToyContainer toys={this.state.toys} donateToy={this.donateToy}/>
       </>
     );
   }
